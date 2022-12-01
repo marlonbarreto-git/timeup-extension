@@ -24,7 +24,7 @@ const updateTimeElements = () => {
             img.setAttribute('id', imgId);
 
             const time = document.createElement('span');
-            time.appendChild(document.createTextNode(`${parseInt(timeInSeconds / (60 * 60))} horas y ${timeInSeconds % (60 * 60)} minutos.`));
+            time.appendChild(document.createTextNode(`${parseInt(timeInSeconds / (60 * 60))} horas y ${parseInt(timeInSeconds/60) % 60} minutos.`));
             time.setAttribute('id', timeId);
 
             document.getElementById(listItemId)?.remove();
