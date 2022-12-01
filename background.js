@@ -1,32 +1,45 @@
-console.log("background script");
+const sites = [
+    'facebook',
+    'youtube',
+    'instagram',
+    'tiktok',
+    'netflix',
+    'prime',
+    'whatsapp',
+    'telegram'
+];
 
-chrome.alarms.create({
-    periodInMinutes: 1 / 60,
-});
+async function getCurrentTab() {
+    const queryOptions = { active: true, lastFocusedWindow: true };
+    const [tab] = await chrome.tabs.query(queryOptions);
+    return tab;
+}
 
-chrome.alarms.onAlarm.addListener(alarm => {
-    chrome.storage.local.get(["timer", "isRunning"], res => {
-        const timer = (res.timer ?? 0) + 1;
-        
-        const isRunning = res.isRunning ?? true;
-        if (!isRunning) {
+const workerFunction = () => {
+    getCurrentTab().then(tab => {
+        if (!tab?.url) {
+            return
+        }
+
+        const { url, favIconUrl } = tab;        
+        const trackedSite = sites.find(site => url.includes(site));
+        if (!trackedSite) {
             return;
         }
 
-        chrome.storage.local.set({ timer });
-        chrome.action.setBadgeText({ text: `${timer}` });
+        chrome.storage.local.get([trackedSite], (response = {}) => {
+            const newTime = (response[trackedSite]?.timeInSeconds || 0) + 1;
+            console.log({ response });
 
-        chrome.storage.sync.get(["notificationTime"], res => {
-            const notificationTime = res.notificationTime ?? 1000;
-            if (timer % notificationTime == 0) {
-                this.registration.showNotification(
-                    "TimeUp Notification",
-                    { 
-                        body: `${notificationTime} secods has passed!`,
-                        icon: "icon.png"
-                    }
-                );
-            }
-        })
-    })
-})
+            const infoToSave = {
+                icon: favIconUrl,
+                timeInSeconds: newTime
+            };
+
+            chrome.storage.local.set({ [trackedSite]: infoToSave });
+        });
+    });
+};
+
+setInterval(workerFunction, 1000);
+

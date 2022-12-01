@@ -17,8 +17,7 @@
     "default_title": "TimeUp",
     "default_popup": "popup.html"
   },
-  "options_page": "options.html",
-  "permissions": ["storage", "alarms", "notifications"],
+  "permissions": ["storage", "alarms", "notifications", "tabs"],
   "background": {
     "service_worker": "background.js"
   }

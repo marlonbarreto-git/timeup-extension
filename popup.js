@@ -1,8 +1,47 @@
-const timeElement = document.getElementById("time");
-const nameElement = document.getElementById("name");
-const timerElement = document.getElementById("timer");
+const trackedSites = [
+    'facebook',
+    'youtube',
+    'instagram',
+    'tiktok',
+    'netflix',
+    'prime',
+    'whatsapp',
+    'telegram'
+];
 
+const sites = document.getElementById("sites");
 
+const updateTimeElements = () => {
+    chrome.storage.local.get(trackedSites, response => {
+        Object.keys(response).forEach(siteName => {
+            const { icon, timeInSeconds } = response[siteName];
+            const imgId = `${siteName}-img`;
+            const timeId = `${siteName}-span`;
+            const listItemId = `${siteName}-item`;
+
+            const img = document.createElement('img');
+            img.setAttribute('src', icon);
+            img.setAttribute('id', imgId);
+
+            const time = document.createElement('span');
+            time.appendChild(document.createTextNode(`${parseInt(timeInSeconds / (60 * 60))} horas y ${timeInSeconds % (60 * 60)} minutos.`));
+            time.setAttribute('id', timeId);
+
+            document.getElementById(listItemId)?.remove();
+            const listItem = document.createElement('li');
+            listItem.setAttribute('id', listItemId);
+            listItem.appendChild(img);
+            listItem.appendChild(time);
+
+            sites.appendChild(listItem);
+        });  
+    })
+}
+
+updateTimeElements();
+setInterval(updateTimeElements, 1000);
+
+/*
 const updateTimeElements = () => {
     chrome.storage.local.get(["timer"], ({ timer = 0 }) => {
         timerElement.textContent = `The timer is at: ${timer} seconds`;
@@ -40,3 +79,4 @@ resetBtn.addEventListener("click", () => {
         isRunning: false,
     })
 });
+*/
